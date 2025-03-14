@@ -1,0 +1,16 @@
+{
+"type": "FeatureCollection",
+"name": "chefs_lieux",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"xy_coordinate_resolution": 1e-06,
+"features": [
+{ "type": "Feature", "properties": { "NOM": "Saint-Girons", "INSEE_COM": "09261", "STATUT": "Sous-préfecture" }, "geometry": { "type": "Point", "coordinates": [ 127589.108137, 5309352.542163 ] } },
+{ "type": "Feature", "properties": { "NOM": "Saint-Gaudens", "INSEE_COM": "31483", "STATUT": "Sous-préfecture" }, "geometry": { "type": "Point", "coordinates": [ 80550.953559, 5328263.254043 ] } },
+{ "type": "Feature", "properties": { "NOM": "Pamiers", "INSEE_COM": "09225", "STATUT": "Sous-préfecture" }, "geometry": { "type": "Point", "coordinates": [ 178993.502441, 5329459.761762 ] } },
+{ "type": "Feature", "properties": { "NOM": "Foix", "INSEE_COM": "09122", "STATUT": "Préfecture" }, "geometry": { "type": "Point", "coordinates": [ 178708.795287, 5306500.474386 ] } },
+{ "type": "Feature", "properties": { "NOM": "Auterive", "INSEE_COM": "31033", "STATUT": "Commune simple" }, "geometry": { "type": "Point", "coordinates": [ 164484.50801, 5365766.70298 ] } },
+{ "type": "Feature", "properties": { "NOM": "Carbonne", "INSEE_COM": "31107", "STATUT": "Commune simple" }, "geometry": { "type": "Point", "coordinates": [ 136520.073513, 5356789.053825 ] } },
+{ "type": "Feature", "properties": { "NOM": "Bagnères-de-Luchon", "INSEE_COM": "31042", "STATUT": "Commune simple" }, "geometry": { "type": "Point", "coordinates": [ 65963.16744, 5279938.033793 ] } },
+{ "type": "Feature", "properties": { "NOM": "Muret", "INSEE_COM": "31395", "STATUT": "Sous-préfecture" }, "geometry": { "type": "Point", "coordinates": [ 148117.253276, 5382482.595994 ] } }
+]
+}

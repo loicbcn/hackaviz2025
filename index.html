@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hackaviz 2025</title>
+
+    <!-- <link rel="icon" type="image/png" href="imgs/favicon-16x16.png" sizes="16x16"> -->
+    <link href="css/ol_v6.6.1.css" rel="stylesheet">
+    <link href="css/ol-ext.min.css" rel="stylesheet">
+    
+
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/ol_v6.6.1.js"></script>
+    <script src="js/ol-ext.js"></script> 
+    <script src="https://code.highcharts.com/12.1/highcharts.js"></script>
+</head>
+
+<body>
+<div id="player">
+    <div class="player label">Lancer la lecture de l'évènement: &nbsp;</div>
+    <div class="player play" id="play" title="Lire">▶</div>
+    <div class="player pause" id="pause" title="Pause">⏸︎</div>
+    <div class="player stop" id="stop" title="Stop">⏹︎</div>
+</div>
+
+<div id="two_cols">
+    <div id="cont_map">
+        <div id="map"></div>
+    </div>
+    <div id="cont_charts">
+        <div id="current_date">&nbsp;</div>
+        <div id="charts_hauteur"></div>
+    </div>
+</div>
+
+<div id="showresult"></div>
+
+<!--<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content">Hello</div>
+</div>-->
+
+<script src="js/jquery-3.6.1.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

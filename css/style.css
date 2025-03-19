@@ -4,17 +4,20 @@ body {
 
 #player{ 
     display:flex; 
+    justify-content: space-between;
+    align-items: baseline;
     gap:20px;
-    align-items: center;
 }
 
 .player{
     cursor:pointer;
     font-size:1.4rem;
+    margin: 1rem 0 0 0;
 }
+.player.label{ font-size:1.2rem; }
 
 #current_date{
-    font-size:1.8rem;
+    font-size:1.4rem;
 } 
 
 #two_cols{

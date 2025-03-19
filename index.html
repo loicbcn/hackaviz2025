@@ -16,23 +16,27 @@
     <script src="js/ol_v6.6.1.js"></script>
     <script src="js/ol-ext.js"></script> 
     <script src="https://code.highcharts.com/12.1/highcharts.js"></script>
+    <script src="https://code.highcharts.com/12.1/modules/annotations.js"></script>
 </head>
 
 <body>
-<div id="player">
-    <div class="player label">Lancer la lecture de l'évènement: &nbsp;</div>
-    <div class="player play" id="play" title="Lire">▶</div>
-    <div class="player pause" id="pause" title="Pause">⏸︎</div>
-    <div class="player stop" id="stop" title="Stop">⏹︎</div>
-</div>
-
 <div id="two_cols">
     <div id="cont_map">
         <div id="map"></div>
+        <div id="player">
+            <div class="player label">Lancer la lecture de l'évènement: &nbsp;</div>
+            <div class="player play" id="play" title="Lire">▶</div>
+            <div class="player pause" id="pause" title="Pause">⏸︎</div>
+            <div class="player stop" id="stop" title="Stop">⏹︎</div>
+        </div>
+        <div id="current_date">&nbsp;</div>
     </div>
     <div id="cont_charts">
-        <div id="current_date">&nbsp;</div>
-        <div id="charts_hauteur"></div>
+        <!--<div id="charts_hauteur"></div>-->
+        <div id="chart_garonne" class="chart_ce"></div>
+        <div id="chart_ariege" class="chart_ce"></div>
+        <div id="chart_salat" class="chart_ce"></div>
+        <div id="chart_leze" class="chart_ce"></div>
     </div>
 </div>
 

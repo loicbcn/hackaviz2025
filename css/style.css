@@ -23,19 +23,24 @@ body {
 }
 
 #cont_map {
-    width:50%;
+    width:40%;
 }
 #cont_charts{
-    width:50%;
+    width:60%;
 }
 
 #map {
     width: 100%;
-    height: 800px;
+    height: 600px;
 }
 #charts_hauteur {
     width: 100%;
     height: 800px;
+}
+
+.chart_ce{
+    width: 100%;
+    height: 200px;
 }
 
 

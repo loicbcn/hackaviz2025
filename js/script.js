@@ -2,6 +2,7 @@ async function get_datas() {
     let map_interval;
     let hydro_last_val = {};
     let pluvio_last_val = {};
+
     const freq = 300;
     const initial_radius = 6;
 
@@ -284,6 +285,17 @@ async function get_datas() {
     
     //play_map();
 
+    let serie = get_serie();
+
+    let chart_garonne = draw_chart([serie['serie'][0]], serie['yaxiss'][0], 'chart_garonne');
+    let chart_ariege = draw_chart([serie['serie'][1]], serie['yaxiss'][1], 'chart_ariege');
+    let chart_salat = draw_chart([serie['serie'][2]], serie['yaxiss'][2], 'chart_salat');
+    let chart_leze = draw_chart([serie['serie'][3]], serie['yaxiss'][3], 'chart_leze');
+
+    chart_garonne.update({series:serie['serie'][0]});
+    chart_ariege.update({series:serie['serie'][1]});
+    chart_salat.update({series:serie['serie'][2]});
+    chart_leze.update({series:serie['serie'][3]});
 
     function play_map() {
         clearInterval(map_interval);
@@ -292,6 +304,12 @@ async function get_datas() {
             //console.log(current_moment);
             station_hydro_lyr.setStyle(station_hydro_style);
             station_pluvio_lyr.setStyle(station_pluvio_style);
+
+            let serie = get_serie();
+            chart_garonne.update({series:serie['serie'][0]});
+            chart_ariege.update({series:serie['serie'][1]});
+            chart_salat.update({series:serie['serie'][2]});
+            chart_leze.update({series:serie['serie'][3]});
             show_date();
         }, freq)
     }    
@@ -350,104 +368,218 @@ async function get_datas() {
     });
 
 
-    
-    // --- Charts
-    let serie = [
-        {name:'La Garonne', data:[], "yAxis": 0, "dataLabels": {"enabled": true }}, // 0
-        {name:'L\'Ariège', data:[], "yAxis": 1}, // 1
-        {name:'Le Salat', data:[], "yAxis": 2}, // 2
-        {name:'La Lèze', data:[], "yAxis": 3}, // 3
-    ];
-    let yaxiss = [];
+    function get_serie() {
+        // --- Charts
+        let serie = [
+            {name:'La Garonne', data:[], "yAxis": 0, "dataLabels": {"enabled": true }, maxh: 7458}, // 0
+            {name:'L\'Ariège', data:[], "yAxis": 0, "dataLabels": {"enabled": true }, maxh: 6230}, // 1
+            {name:'Le Salat', data:[], "yAxis": 0, "dataLabels": {"enabled": true }, maxh: 4190}, // 2
+            {name:'La Lèze', data:[], "yAxis": 0, "dataLabels": {"enabled": true }, maxh: 6259}, // 3
+        ];
+        let yaxiss = [];
 
-    for ( let i in station_hydro['features'] ) {
-        const one_station = station_hydro['features'][i]['properties'];
-        let  idx = 0;
-        let one = {
-            name: '',
-            data:[]
-        };
+        for ( let i in station_hydro['features'] ) {
+            
+            const one_station = station_hydro['features'][i]['properties'];
 
-        if ( one_station['libelle_cours_eau'] == 'L\'Ariège' ) {
-            idx = 1;
-        } else if ( one_station['libelle_cours_eau'] == 'Le Salat' ) {
-            idx = 2;
-        } else if ( one_station['libelle_cours_eau'] == 'La Lèze' ) {
-            idx = 3;
+            
+            let  idx = 0;
+            let one = {
+                name: '',
+                data:[]
+            };
+
+            if ( one_station['libelle_cours_eau'] == 'L\'Ariège' ) {
+                idx = 1;
+
+            } else if ( one_station['libelle_cours_eau'] == 'Le Salat' ) {
+                idx = 2;
+            } else if ( one_station['libelle_cours_eau'] == 'La Lèze' ) {
+                idx = 3;
+            }
+
+            serie[idx]['data'].push({
+                x: one_station['dist'] ? one_station['dist'] : 0,
+                y: get_station_h(one_station['code_station']), //one_station['med_h'],
+                name: one_station['libelle_station']
+            });
+        }
+        // Trier selon la distance
+        for ( let i in serie ) {
+            let newdata = serie[i]['data'].sort((a,b) => b.x - a.x);
+            serie[i]['data'] = newdata;
+            yaxiss.push({
+                min: 0, // Lowest value to show on the yAxis
+                max:7500,
+                title: {
+                    text: undefined
+                },
+                //offset: 0,
+                //height: '100%',
+                //top: 50+180*i,
+                //tickInterval:500,
+                //gridLineWidth:2,
+                //gridLineDashStyle:'shortdot',
+                labels: {
+                    format: '{value}',
+                    style:{
+                        fontSize: '0.6em',
+                    }
+                }
+                //gridLineColor: colors_cats[tb_rubriques.find(item => item.n == ser.name ).id],
+            });
         }
 
-        serie[idx]['data'].push({
-            x: one_station['dist'] ? one_station['dist'] : 0,
-            y: one_station['med_h'],
-            name: one_station['libelle_station']
-        });
-    }
-    // Trier selon la distance
-    for ( let i in serie ) {
-        let newdata = serie[i]['data'].sort((a,b) => b.x - a.x);
-        serie[i]['data'] = newdata;
-        yaxiss.push({
-            min: 0, // Lowest value to show on the yAxis
-            max:4500,
-            title: {
-                text: undefined
-            },
-            offset: 00,
-            height: 140,
-            top: 50+180*i,
-            tickInterval:500,
-            gridLineWidth:2,
-            gridLineDashStyle:'shortdot',
-            //gridLineColor: colors_cats[tb_rubriques.find(item => item.n == ser.name ).id],
-        });
+        return {
+            serie: serie,
+            yaxiss: yaxiss,
+        };
     }
 
-    draw_chart(serie, yaxiss, 'charts_hauteur');
+function get_station_h(cs){
+    let h = 0;
+    // console.log(feature.getProperties());
+    let obj = data_hydro.find(o => o.cs === cs && o.m === current_moment['m'] && o.j === current_moment['j'] && o.h === current_moment['h']);
+
+    if( obj === undefined) {
+       // console.log('------' + feature.get('code_station') + ' - ' + current_moment['m'] + ' - ' + current_moment['j'] + ' - ' + current_moment['h']);
+        h = hydro_last_val[cs];
+    } else {
+        h = obj.mh;
+    }
+    return h;    
+}
     
-
 
 }
 
 get_datas();
 
-function draw_chart(serie, yaxiss, container){
-    Highcharts.chart(container, {
+function draw_chart(serie, yaxiss, container) {
+    let plotlines = getplotlines(container);
+    let title = 'La Garonne';
+    if ( container == 'chart_ariege') {
+        title = 'L\'Ariège';
+    } else if( container == 'chart_salat' ) {
+        title = 'Le Salat';
+    } else if( container == 'chart_leze' ) {
+        title = 'La Lèze';
+    }
+
+    return Highcharts.chart(container, {
         chart: {
             type: 'column',
+            margin: [40, 10, 60, 80],
+            spacing: [0,0,0,0],
+            animation: false
             //height: 800
         },
         title: {
-            text: undefined
+            text: title,
+            floating:true,
+            align: 'left',
+            verticalAlign:'bottom',
+            x: 80,
+            style:{
+                fontSize: '0.8em',
+            }
+
         },
         xAxis: [{
-            tickmarkPlacement: 'on',
+            title: {
+                text: 'distance entre les stations et Toulouse Pont-Neuf (km)',
+            },
+            labels: {
+                style:{
+                    fontSize: '0.6em',
+                }
+            },
+            plotLines: plotlines,
+            min:0,
+            max: 180,
+            //tickmarkPlacement: 'on',
             //categories: annees,
             tickInterval:1,
             gridLineWidth: 1,
             gridLineColor: 'rgba(0,0,0,.3)',
-            gridLineDashStyle: 'longdash',
-            top: 10
-        }],
-        yAxis: yaxiss,
+            //gridLineDashStyle: 'longdash',
+            //top: '1%',
+        }
+        ],
+        yAxis: {
+            min: 0, // Lowest value to show on the yAxis
+            max:8000,
+            title: {
+                text: 'Hauteur d\'eau (mm)',
+                style:{
+                    fontSize: '0.6em',
+                }
+            },
+            //offset: 0,
+            //height: '100%',
+            //top: 50+180*i,
+            tickInterval:2000,
+            //gridLineWidth:2,
+            //gridLineDashStyle:'shortdot',
+            labels: {
+                format: '{value}',
+                style:{
+                    fontSize: '0.6em',
+                }
+            }
+            //gridLineColor: colors_cats[tb_rubriques.find(item => item.n == ser.name ).id],
+        },
+        /*yAxis: yaxiss,*/
         legend: {
+            enabled: false,
             layout:'vertical',
             align:'right',
-            verticalAlign:'middle',
-            itemMarginTop: 25,
-            itemMarginBottom: 50,
+            floating: true,
+            verticalAlign:'bottom',
+            //itemMarginTop: 25,
+            //itemMarginBottom: 50,
         },
+        /*annotations: [{
+            draggable: false,
+            crop:false,
+            labelOptions: {
+                overflow: 'none',
+            },
+            labels: [{
+                text: 'St Gaudens',
+                crop:false,
+                point: {
+                    x: 109,
+                    y: 8000,
+                    xAxis: 0,
+                    yAxis: 0
+                },
+            },{
+                text: 'Portet',
+                crop:false,
+                point: {
+                    x: 9.33,
+                    y: 8000,
+                    xAxis: 0,
+                    yAxis: 0
+                },
+            }
+        ]
+        }],*/
 
         credits: {
             enabled: false,
         },
         tooltip: {
             formatter: function () {
+                console.log(this); 
+                return `${this.name} à <b>${this.category}</b> km de Toulouse`;
                 return this.points.reduce(function (s, point) { 
                     return s + '<br/><span style="color:' + point.color + ';">&#9632</span>&nbsp;' + point.series.name + ': ' +
                         point.y + ' mm';
                 }, '<b>' + this.x + '</b>');
             },
-            shared: true 
+            shared: false
         },
         /*responsive: {
             rules: [{
@@ -474,6 +606,102 @@ function draw_chart(serie, yaxiss, container){
         },*/
         series: serie
     });
+}
+
+function getplotlines(container) {
+    let plotline_style = {
+        fontSize: '0.7em',
+        backgroundColor: 'rgba(255,255,0,0.2)',
+        //fontWeight: 'bold',
+    };
+
+    // Villes
+    const datalines = { 
+        'chart_garonne' : [
+            { text: 'Luchon', value: 175, rotation: -45 },
+            { text: 'St-Gaudens', value: 108, rotation: -45 },
+            { text: 'Carbonne', value: 45, rotation: -45 },
+            { text: 'Muret', value: 21, rotation: -45 },
+            { text: 'Portet', value: 9, rotation: -45 },
+            { text: 'Pont-Neuf', value: 0, rotation: -45 },
+        ], 'chart_ariege' : [
+            { text: 'Ax', value: 144, rotation: -45 },
+            { text: 'Foix', value: 99, rotation: -45 },
+            { text: 'Pamiers', value: 74, rotation: -45 },
+            { text: 'Auterive', value: 34, rotation: -45 },
+        ], 'chart_salat' : [
+            { text: 'St-Girons', value: 114, rotation: -45 },
+        ], 'chart_leze' : [
+            { text: 'Labarthe', value: 20, rotation: -45 },
+            { text: 'Lézat', value: 114, rotation: -45 },
+        ]
+
+    }
+
+    let plotlines = [];
+
+    for ( let d in datalines[container]) {
+        let data = datalines[container][d];
+        plotlines.push({
+            color: '#FF0000',
+            width: 2,
+            value: data['value'],
+            zIndex: 3,
+            label:{
+                useHTML:true,
+                text: data['text'],
+                rotation: data['rotation'],
+                //verticalAlign: 'middle',
+                //textAlign: 'right',
+                //y: 5,
+                x:6,
+                y:0,
+                style: plotline_style,
+            }
+        });
+    }
+
+    plotline_style = {
+        fontSize: '0.7em',
+        backgroundColor: 'rgba(119,166,252,0.2)',
+        //fontWeight: 'bold',
+    };
+    // Confluences
+    const dataconfl = { 
+        'chart_ariege' : [
+            { text: 'Garonne', value: 10, rotation: -45 },
+            { text: 'Lèze', value: 19, rotation: -45 }
+        ], 'chart_salat' : [
+            { text: 'Garonne', value: 78, rotation: -45 }
+        ], 'chart_leze' : [
+            { text: 'Ariège', value: 19, rotation: -45 }
+        ]
+    }
+
+    for ( let d in dataconfl[container]) {
+        let data = dataconfl[container][d];
+        plotlines.push({
+            color: '#0000ff',
+            width: 2,
+            value: data['value'],
+            dashStyle: 'dash',
+            //zIndex: 3,
+            label:{
+                useHTML:true,
+                text: data['text'],
+                rotation: data['rotation'],
+                //verticalAlign: 'bottom',
+                //textAlign: 'right',
+                //y: 5,
+                x:6,
+                y:15,
+                style: plotline_style,
+            }
+        });
+    }
+
+    return plotlines;
+    
 }
 
 

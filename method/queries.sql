@@ -44,7 +44,7 @@ copy(
 --------------------------------------------
 -- Sations pluviométrie 2022
 copy(
-	SELECT DISTINCT code_pluviometre, nom_usuel, altitude, st_transform(st_point(longitude, latitude), 'EPSG:4326','EPSG:3857') geometry
+	SELECT DISTINCT code_pluviometre, nom_usuel, altitude, st_transform(st_point(longitude, latitude), 'EPSG:4326','EPSG:3857', true) geometry
 	FROM read_parquet('C:\donnees\hackaviz\hackaviz2025\data\pluviometrie.parquet') d
 	WHERE date_part('year', date_observation) = '2022'
 ) TO 'C:\UwAmp\www\hackaviz2025\data\pluviometre_2022.geojson' WITH(FORMAT gdal, DRIVER 'GeoJSON', LAYER_CREATION_OPTIONS 'WRITE_BBOX=YES', SRS 'EPSG:3857')

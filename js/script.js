@@ -40,14 +40,6 @@ async function get_datas() {
 
     const f_station_pluvio  = await fetch('data/pluviometre_2022.geojson');
     const station_pluvio = await f_station_pluvio.json();
-    
-
-    /*
-    console.log(data_hydro);
-    console.log(data_pluvio);
-    console.log(station_hydro);
-    console.log(station_pluvio);
-    */
 
     var fdcarte = new ol.layer.Group({ title: 'Fond de carte', openInLayerSwitcher: false, layers: [
         new ol.layer.Image({
@@ -138,10 +130,8 @@ async function get_datas() {
             return;
         }
         let h = 0;
-        // console.log(feature.getProperties());
         let obj = data_hydro.find(o => o.cs === feature.get('code_station') && o.m === current_moment['m'] && o.j === current_moment['j'] && o.h === current_moment['h']);
         if( obj === undefined) {
-           // console.log('------' + feature.get('code_station') + ' - ' + current_moment['m'] + ' - ' + current_moment['j'] + ' - ' + current_moment['h']);
             h = hydro_last_val[feature.get('code_station')];
         } else {
             hydro_last_val[feature.get('code_station')] = obj.mh;
@@ -151,8 +141,6 @@ async function get_datas() {
         let my_radius = h / 200;
 
         if ( my_radius < 0 ) my_radius = 1;
-        //if ( my_radius > 100 ) my_radius = 100;
-        //console.log(my_radius);
 
         return new ol.style.Style({
             image: new ol.style.Circle({
@@ -169,7 +157,6 @@ async function get_datas() {
         let h = 0;
         let obj = data_pluvio.find(o => o.code_pluviometre === feature.get('code_pluviometre') && o.mois === current_moment['m'] && o.jour === current_moment['j'] );
         if( obj === undefined) {
-          //  console.log('------' + feature.get('code_pluviometre') + ' - ' + current_moment['m'] + ' - ' + current_moment['j'] );
             h = pluvio_last_val[feature.get('code_pluviometre')];
         } else {
             pluvio_last_val[feature.get('code_pluviometre')] = obj.prec;
@@ -177,10 +164,6 @@ async function get_datas() {
         }
 
         let my_radius = 2 + h/5;
-
-        // if ( my_radius < 0 ) my_radius = 1;
-        //if ( my_radius > 100 ) my_radius = 100;
-        //console.log(my_radius);
 
         return new ol.style.Style({
             image: new ol.style.Circle({
@@ -301,7 +284,6 @@ async function get_datas() {
         clearInterval(map_interval);
         map_interval = setInterval(function() {
             current_moment = increment(current_moment);
-            //console.log(current_moment);
             station_hydro_lyr.setStyle(station_hydro_style);
             station_pluvio_lyr.setStyle(station_pluvio_style);
 
@@ -310,6 +292,8 @@ async function get_datas() {
             chart_ariege.update({series:serie['serie'][1]});
             chart_salat.update({series:serie['serie'][2]});
             chart_leze.update({series:serie['serie'][3]});
+
+            $('#range_date').val((current_moment.j - start_moment.j)*24 + (current_moment.h));
             show_date();
         }, freq)
     }    
@@ -361,6 +345,7 @@ async function get_datas() {
         clearInterval(map_interval);
         // current_moment ={'m': 1, 'j': 1,'h': 1};
         current_moment = { ...start_moment };
+        $('#range_date').val(0);
     });
     
     $('#pause').on('click', function(){
@@ -438,11 +423,9 @@ async function get_datas() {
 
     function get_station_h(cs){
         let h = 0;
-        // console.log(feature.getProperties());
         let obj = data_hydro.find(o => o.cs === cs && o.m === current_moment['m'] && o.j === current_moment['j'] && o.h === current_moment['h']);
 
         if( obj === undefined) {
-        // console.log('------' + feature.get('code_station') + ' - ' + current_moment['m'] + ' - ' + current_moment['j'] + ' - ' + current_moment['h']);
             h = hydro_last_val[cs];
         } else {
             h = obj.mh;
@@ -466,7 +449,6 @@ async function get_datas() {
     });
     
     function get_date_from_range(v) {
-        //console.log(v, start_moment, end_moment);
         let new_j = start_moment.j + Math.floor(v/24);
         let new_h = (v - 24*Math.floor(v/24));
 
@@ -528,7 +510,8 @@ function draw_chart(serie, yaxiss, container) {
             labels: {
                 style:{
                     fontSize: '0.6em',
-                }
+                },
+                zIndex:1,
             },
             plotLines: plotlines,
             min:0,
@@ -607,13 +590,18 @@ function draw_chart(serie, yaxiss, container) {
             enabled: false,
         },
         tooltip: {
+            className: 'mytootip',
+            useHTML: true,
             formatter: function () {
-                console.log(this); 
-                return `${this.name} à <b>${this.category}</b> km de Toulouse`;
+                let cur_d = $('#current_date').text();
+                return `${this.name} à <b>${this.category}</b> km de Toulouse<br>${Highcharts.numberFormat(this.y,0)} mm ${cur_d}`;
                 return this.points.reduce(function (s, point) { 
                     return s + '<br/><span style="color:' + point.color + ';">&#9632</span>&nbsp;' + point.series.name + ': ' +
                         point.y + ' mm';
                 }, '<b>' + this.x + '</b>');
+            },
+            style:{
+                zIndex:15
             },
             shared: false
         },
@@ -682,7 +670,7 @@ function getplotlines(container) {
             color: '#FF0000',
             width: 2,
             value: data['value'],
-            zIndex: 3,
+            zIndex: 1,
             label:{
                 useHTML:true,
                 text: data['text'],

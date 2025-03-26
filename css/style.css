@@ -47,4 +47,16 @@ body {
     height: 200px;
 }
 
+#cont_range_date { margin: 8px 0 0 0; }
+#oualors{margin: 8px 0;}
 
+label { font-weight: bold; }
+.mytootip, .highcharts-tooltip{z-index:10 !important;}
+
+.highcharts-plot-line-label {
+    overflow: visible !important;
+  }
+  
+  .highcharts-plot-line-label:hover {
+    z-index: 1;
+  }

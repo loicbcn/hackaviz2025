@@ -1,6 +1,7 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
 }
+#range_date{ display:block; width:100%; }
 
 #player{ 
     display:flex; 

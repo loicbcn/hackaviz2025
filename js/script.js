@@ -436,20 +436,56 @@ async function get_datas() {
         };
     }
 
-function get_station_h(cs){
-    let h = 0;
-    // console.log(feature.getProperties());
-    let obj = data_hydro.find(o => o.cs === cs && o.m === current_moment['m'] && o.j === current_moment['j'] && o.h === current_moment['h']);
+    function get_station_h(cs){
+        let h = 0;
+        // console.log(feature.getProperties());
+        let obj = data_hydro.find(o => o.cs === cs && o.m === current_moment['m'] && o.j === current_moment['j'] && o.h === current_moment['h']);
 
-    if( obj === undefined) {
-       // console.log('------' + feature.get('code_station') + ' - ' + current_moment['m'] + ' - ' + current_moment['j'] + ' - ' + current_moment['h']);
-        h = hydro_last_val[cs];
-    } else {
-        h = obj.mh;
+        if( obj === undefined) {
+        // console.log('------' + feature.get('code_station') + ' - ' + current_moment['m'] + ' - ' + current_moment['j'] + ' - ' + current_moment['h']);
+            h = hydro_last_val[cs];
+        } else {
+            h = obj.mh;
+        }
+        return h;    
     }
-    return h;    
-}
+
+
+    $('#range_date').attr({
+        min:1,
+        max: (end_moment.j - start_moment.j + 1)*24 - start_moment.h - (24-end_moment.h)+1,
+        step:1,
+        value: 1
+    });
+
+
+    $('#range_date').on('input', function () {
+        clearInterval(map_interval);
+        let cur_date = get_date_from_range($(this).val());
+        //$(this).trigger('change');
+    });
     
+    function get_date_from_range(v) {
+        //console.log(v, start_moment, end_moment);
+        let new_j = start_moment.j + Math.floor(v/24);
+        let new_h = (v - 24*Math.floor(v/24));
+
+        current_moment = {
+            'm': 1,
+            'j': new_j,
+            'h': new_h  
+        };
+        station_hydro_lyr.setStyle(station_hydro_style);
+        station_pluvio_lyr.setStyle(station_pluvio_style);
+
+        let serie = get_serie();
+        chart_garonne.update({series:serie['serie'][0]});
+        chart_ariege.update({series:serie['serie'][1]});
+        chart_salat.update({series:serie['serie'][2]});
+        chart_leze.update({series:serie['serie'][3]});
+        show_date();
+
+    }
 
 }
 

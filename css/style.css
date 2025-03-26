@@ -1,6 +1,17 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
 }
+header{ display: flex; 
+    justify-content: space-between;
+    align-items: baseline;
+    gap:20px;
+}
+
+.senseau{
+    font-size:1rem;
+    margin-right: 4rem;
+}
+
 #range_date{ display:block; width:100%; }
 
 #player{ 
@@ -60,3 +71,4 @@ label { font-weight: bold; }
   .highcharts-plot-line-label:hover {
     z-index: 1;
   }
+  h2 { text-align:right; padding: 0 8px 0 0;}
